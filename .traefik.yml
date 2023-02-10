@@ -1,0 +1,19 @@
+---
+displayName: Hydrate Headers
+type: middleware
+import: github.com/Catzilla/traefik-hydrate-headers
+summary: Hydrate headers from endpoint
+testData:
+  remote:
+    url: http://127.0.0.1
+    method: POST
+  appendOn:
+    statusCodes:
+      - 200
+  nextOn:
+    statusCodes:
+      - 200
+  forwardHeaders:
+    - Cookie
+  headers:
+    X-Demo: test
