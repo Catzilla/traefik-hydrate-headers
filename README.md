@@ -36,12 +36,12 @@ X-User-Id: |
 ### Set remote header value to request header
 
 ```yaml
-X-Example: '{{ .RemoteResponse.Headers.Get "X-Remote-Header" }}'
+X-Example: '{{ .RemoteResponse.Header.Get "X-Remote-Header" }}'
 ```
 
 ### Set original request header value to another request header
 
 ```yaml
-X-Real-Ip: '{{ .Request.Headers.Get "Cf-Connecting-Ip" }}'
+X-Real-Ip: '{{ .Request.Header.Get "Cf-Connecting-Ip" }}'
 ```
 
