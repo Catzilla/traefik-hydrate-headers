@@ -1,19 +1,23 @@
 package traefik_hydrate_headers
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
+	"text/template"
 	"time"
 )
 
 type Hydrate struct {
-	next   http.Handler
-	name   string
-	client http.Client
-	config *Config
+	next     http.Handler
+	name     string
+	client   http.Client
+	config   *Config
+	template *template.Template
 }
 
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
@@ -35,6 +39,15 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 			},
 			Timeout: 30 * time.Second,
 		},
+		template: template.New("").Funcs(template.FuncMap{
+			"unmarshalJson": func(s string) interface{} {
+				var data interface{}
+
+				json.Unmarshal([]byte(s), &data)
+
+				return data
+			},
+		}),
 	}
 
 	return h, nil
@@ -101,8 +114,27 @@ func (h *Hydrate) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		bodyString = strings.ReplaceAll(string(body), "\n", "\\n")
 	}
 
-	for key, _ := range h.config.Headers {
-		req.Header.Add(key, bodyString)
+	data := make(map[string]interface{})
+	data["Request"] = req
+	data["RemoteBody"] = bodyString
+	data["RemoteResponse"] = remoteRes
+
+	for key, value := range h.config.Headers {
+		tpl, err := h.template.Parse(strings.TrimSpace(value))
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		writer := &bytes.Buffer{}
+
+		err = tpl.Execute(writer, data)
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		req.Header.Add(key, strings.TrimSpace(writer.String()))
 	}
 
 	h.NextIfRequired(rw, req, remoteRes)

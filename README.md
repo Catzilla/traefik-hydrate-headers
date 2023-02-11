@@ -15,4 +15,33 @@ Hydrate headers from remote endpoint
 
 `forwardHeaders` *([]string)* [optional] - List of headers from original request to be passed to remote
 
-`headers` *(map[string]string)* - Map of headers in which to set remote response (*key* is header name, *value* does not used yet and is reserved for next releases)
+`headers` *(map[string]string)* - Map of headers in which to set remote response (*key* is header name, *value* is Go template)
+
+## Headers template examples
+
+### Set remote body to request header
+
+```yaml
+X-Example: '{{ .RemoteBody }}'
+```
+
+### Unmarshal JSON body and set field to header
+
+```yaml
+X-User-Id: |
+  {{ $user := unmarshalJson .RemoteBody }}
+  {{ $user.id }}
+```
+
+### Set remote header value to request header
+
+```yaml
+X-Example: '{{ .RemoteResponse.Headers.Get "X-Remote-Header" }}'
+```
+
+### Set original request header value to another request header
+
+```yaml
+X-Real-Ip: '{{ .Request.Headers.Get "Cf-Connecting-Ip" }}'
+```
+
