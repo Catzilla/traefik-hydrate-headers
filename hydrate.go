@@ -41,6 +41,23 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 }
 
 func (h *Hydrate) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+	if len(h.config.FetchOn.Cookies) > 0 {
+		var cookieFound bool = false
+
+		for _, cookie := range h.config.FetchOn.Cookies {
+			_, err := req.Cookie(cookie)
+			if err == nil {
+				cookieFound = true
+				break
+			}
+		}
+
+		if !cookieFound {
+			h.NextIfRequired(rw, req, nil)
+			return
+		}
+	}
+
 	remoteReq, err := http.NewRequest(h.config.Remote.Method, h.config.Remote.Url, nil)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -92,7 +109,7 @@ func (h *Hydrate) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Hydrate) NextIfRequired(rw http.ResponseWriter, req *http.Request, remoteRes *http.Response) {
-	if len(h.config.NextOn.StatusCodes) > 0 && !contains(h.config.NextOn.StatusCodes, remoteRes.StatusCode) {
+	if remoteRes != nil && len(h.config.NextOn.StatusCodes) > 0 && !contains(h.config.NextOn.StatusCodes, remoteRes.StatusCode) {
 		return
 	}
 

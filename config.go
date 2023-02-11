@@ -5,16 +5,21 @@ type RemoteConfig struct {
 	Method string `yaml:"method"`
 }
 
+type FetchConditionConfig struct {
+	Cookies []string `yaml:"cookies"`
+}
+
 type ConditionConfig struct {
 	StatusCodes []int `yaml:"statusCode"`
 }
 
 type Config struct {
-	Remote         *RemoteConfig     `yaml:"remote"`
-	AppendOn       *ConditionConfig  `yaml:"appendOn"`
-	NextOn         *ConditionConfig  `yaml:"nextOn"`
-	ForwardHeaders []string          `yaml:"forwardHeaders"`
-	Headers        map[string]string `yaml:"headers"`
+	Remote         *RemoteConfig         `yaml:"remote"`
+	FetchOn        *FetchConditionConfig `yaml:"fetchOn"`
+	AppendOn       *ConditionConfig      `yaml:"appendOn"`
+	NextOn         *ConditionConfig      `yaml:"nextOn"`
+	ForwardHeaders []string              `yaml:"forwardHeaders"`
+	Headers        map[string]string     `yaml:"headers"`
 }
 
 func CreateConfig() *Config {
@@ -22,6 +27,9 @@ func CreateConfig() *Config {
 		Remote: &RemoteConfig{
 			Url:    "",
 			Method: "GET",
+		},
+		FetchOn: &FetchConditionConfig{
+			Cookies: []string{},
 		},
 		AppendOn: &ConditionConfig{
 			StatusCodes: []int{},
