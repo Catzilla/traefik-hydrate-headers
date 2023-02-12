@@ -7,11 +7,13 @@ Hydrate headers from remote endpoint
 | :-- | :-- | :-: | :-- | :-- |
 | `appendOn.statusCodes` | []int | | | Remote status codes at which headers will be appended |
 | `fetchOn.cookies` | []string | | | Only fetch remote when any of cookies from this list present in original request |
+| `fetchOn.headers` | []string | | | Only fetch remote when any of headers from this list present in original request |
 | `forwardHeaders` | []string | | | List of headers from original request to be passed to remote |
 | `headers` | map[string]string | :white_check_mark: | | Map of headers in which to set remote response (*key* is header name, *value* is Go template) |
 | `nextOn.statusCodes` | []int | | | Remote status codes at which next middleware will be called |
 | `remote.method` | string | | `GET` | Request method |
 | `remote.url` | string | :white_check_mark: | | Url to be fetched |
+| `statusCodeError` | int | | `503` | Status code sent to client on `nextOn` conditions failure |
 
 ## Headers template examples
 

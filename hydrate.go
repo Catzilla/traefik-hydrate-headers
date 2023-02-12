@@ -54,6 +54,22 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 }
 
 func (h *Hydrate) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+	if len(h.config.FetchOn.Headers) > 0 {
+		var headerFound bool = false
+
+		for _, header := range h.config.FetchOn.Headers {
+			if req.Header.Get(header) != "" {
+				headerFound = true
+				break
+			}
+		}
+
+		if !headerFound {
+			h.NextIfRequired(rw, req, nil)
+			return
+		}
+	}
+
 	if len(h.config.FetchOn.Cookies) > 0 {
 		var cookieFound bool = false
 
@@ -142,6 +158,7 @@ func (h *Hydrate) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 func (h *Hydrate) NextIfRequired(rw http.ResponseWriter, req *http.Request, remoteRes *http.Response) {
 	if remoteRes != nil && len(h.config.NextOn.StatusCodes) > 0 && !contains(h.config.NextOn.StatusCodes, remoteRes.StatusCode) {
+		rw.WriteHeader(h.config.StatusCodeError)
 		return
 	}
 

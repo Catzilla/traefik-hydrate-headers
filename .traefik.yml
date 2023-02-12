@@ -8,6 +8,8 @@ testData:
     url: http://127.0.0.1
     method: POST
   fetchOn:
+    headers:
+      - X-Header-Name
     cookies:
       - cookie_name
   appendOn:
