@@ -44,4 +44,3 @@ X-Example: '{{ .RemoteResponse.Header.Get "X-Remote-Header" }}'
 ```yaml
 X-Real-Ip: '{{ .Request.Header.Get "Cf-Connecting-Ip" }}'
 ```
-

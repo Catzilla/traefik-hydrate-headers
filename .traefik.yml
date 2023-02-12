@@ -7,6 +7,9 @@ testData:
   remote:
     url: http://127.0.0.1
     method: POST
+  fetchOn:
+    cookies:
+      - cookie_name
   appendOn:
     statusCodes:
       - 200
@@ -16,4 +19,4 @@ testData:
   forwardHeaders:
     - Cookie
   headers:
-    X-Demo: test
+    X-Demo: '{{ .RemoteBody }}'
